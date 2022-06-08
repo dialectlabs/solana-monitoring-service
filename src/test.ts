@@ -8,10 +8,12 @@ const getSomething = async () => {
   console.log(await connection.getVersion());
   // @ts-ignore
   exec('solana feature status', (error, stdout, stderr) => {
-    const versions = stdout.match(/\d+\.\d{1,2}\.\d{1,2}/g);
-    console.log(versions);
-    var max = versions.sort(semver.rcompare);
-    console.log(max);
+    const table = stdout.match(
+      /^((\d+\.\d{1,2}\.\d{1,2}){1}[,\s]{1,2})+\s*\d+(\s+\d{1,2}\.\d{2}\%){2}/gm,
+    );
+    console.log(table);
+    // var max = versions.sort(semver.rcompare);
+    //console.log(max);
     console.log('stdout: ' + stdout);
     console.log('stderr: ' + stderr);
     if (error !== null) {
