@@ -1,10 +1,8 @@
 {
   "name": "@dialectlabs/monitoring-service",
   "version": "0.1.0",
-  "type":"module",
   "description": "A reference implementation of a service running @dialectlabs/monitor.",
   "author": "dialectlabs",
-  "private": false,
   "license": "Apache-2.0",
   "scripts": {
     "prebuild": "rimraf dist",
@@ -22,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@dialectlabs/monitor": "^1.2.11",
+    "@dialectlabs/monitor": "^2.0.6",
     "@dialectlabs/web3": "^0.2.0",
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",

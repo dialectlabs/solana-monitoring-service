@@ -1,43 +1,35 @@
+import { FeatureRelease } from "src/monitoring.service";
 
-export function compareVersionsAscending(version1: string, version2: string): number {
-    return compareVersions(version1, version2, true);
+export function pruneOutput(output: String): String[] {
+    const columnDelimiterRegExp = /.+\|.+\|.+/gm;
+    return [...output.matchAll(columnDelimiterRegExp)]
+        .filter((e) => e.length  == 1)
+        .map((e) => e[0].trim());
 }
 
-export function compareVersionsDescending(version1: string, version2: string): number {
-    return compareVersions(version1, version2, false);
+export function pruneActiveOutput(content: String): String[] {
+    const prunedOutput = pruneOutput(content);
+    return prunedOutput.filter((e) => featureSetIsActive(e));
 }
 
-function compareVersions(version1: string, version2: string, ascending: boolean = true): number {
-    try {
-        const vlist1 = version1.split('.').map((e) => parseInt(e));
-        const vlist2 = version2.split('.').map((e) => parseInt(e));
-        return recursiveVersionSort(vlist1, vlist2) * (ascending ? 1 : -1);
-    } catch {
-        return -1;
+export function parseFeatureSetHashFromActiveLine(line: String): FeatureRelease | undefined {
+    const columns = line.split('|');
+    if (columns.length < 3) {
+        return undefined;
     }
+    return {
+        featureHash: columns[0].trim(),
+        description: columns[2].trim()
+    };
 }
 
-export function recursiveVersionSort(vlist1: number[], vlist2: number[]): number {
-    if (vlist1.length != vlist2.length || vlist1.length < 1) {
-      return -1;
-    }
-    const num1 = vlist1[0]!;
-    const num2 = vlist2[0]!;
-    if (vlist1.length == 1 || num1 != num2) {
-        return num1 - num2;
-    }
-    return recursiveVersionSort(vlist1.slice(1, undefined), vlist2.slice(1, undefined));
+export function parseActiveHashes(content: String): FeatureRelease[] {
+    const activeLines = pruneActiveOutput(content);
+    const featureReleases: Map<String, FeatureRelease> = new Map(activeLines.map((e) => parseFeatureSetHashFromActiveLine(e)).filter((e) => e).map((e) => [e!.featureHash, e!]));
+    return [...featureReleases.values()];
 }
 
-const versionRegexp = /\d+\.\d{1,2}\.\d{1,2}/;
-const versionLineRegexp = /^((\d+\.\d{1,2}\.\d{1,2}){1}[,\s]{1,2})+\s*\d+(\s+\d{1,2}\.\d{2}\%){2}/gm;
-
-export function parseVersions(content: string): string[] {
-    console.log(content);
-    const lineMatches = content.match(versionLineRegexp);
-    if (lineMatches == null) {
-        return [];
-    }
-    const versions = lineMatches!.map((lineMatch) => lineMatch.match(versionRegexp) ?? []).flat();
-    return versions.sort(compareVersionsDescending);
+export function featureSetIsActive(featureSet: String): boolean {
+    const activityLine = featureSet.split('|')[1];
+    return activityLine != undefined && !activityLine.includes('inactive') && activityLine.includes('active');
 }

@@ -1,19 +1,14 @@
-import { parseVersions } from "../utils/parsing-utils";
+import { FeatureRelease } from "src/monitoring.service";
+import { parseActiveHashes } from "src/utils/parsing-utils";
 const util = require('util');
 const exec = util.promisify(require('child_process').exec);
 
-export async function fetchCurrentVersion(): Promise<string | undefined> {
+export async function fetchFeatureSet(): Promise<FeatureRelease[]> {
     const { stdout } = await exec('solana feature status');
-    const versions = parseVersions(stdout);
-    return versions.length > 0 ? versions[0] : undefined;
-}
-
-const localCurrentVersionKey: string = "local-current-version";
-
-export async function getLocalCurrentVersion() {
-
-}
-
-export async function setLocalCurrentVersion() {
-    
+    if (process.env.TEST) {
+        const hashes = parseActiveHashes(stdout);
+        const spliced = hashes.splice(0, Math.round(Math.random() * Math.max(0, 2)));
+        return spliced
+    }
+    return parseActiveHashes(stdout);
 }
