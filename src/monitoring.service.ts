@@ -45,8 +45,11 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       .notify()
       .dialectThread(
         (data) => {
-          console.log(data.context.subscribers[0].toBase58());
-          var updateSuffix = data.value.length > 1 ? 's' : '';
+          const publicKey = data.context.subscribers[0];
+          if (publicKey) {
+            console.log(publicKey.toBase58());
+          }
+          const updateSuffix = data.value.length > 1 ? 's' : '';
           return {
             message: `New solana update${updateSuffix} available: ${data.value
               .map((e) => e.description)
