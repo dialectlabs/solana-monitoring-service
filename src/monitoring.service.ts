@@ -1,6 +1,26 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { Monitors, Pipelines, SubscriberState } from '@dialectlabs/monitor';
+import {
+  Monitors,
+  Pipelines,
+  ResourceId,
+  SourceData,
+} from '@dialectlabs/monitor';
 import { DialectConnection } from './dialect-connection';
+import { fetchFeatureSet } from './version-service/version-service';
+import { Duration } from 'luxon';
+import { PublicKey } from '@solana/web3.js';
+
+const pubKey = new PublicKey('CRpSadzckbDKKaRcUPeGrQmXA2M2oNSGZbTYvyLNs4vA');
+
+export interface HashSet {
+  hashes: FeatureRelease[];
+  subscribers: ResourceId[];
+}
+
+export interface FeatureRelease {
+  featureHash: String;
+  description: String;
+}
 
 @Injectable()
 export class MonitoringService implements OnModuleInit, OnModuleDestroy {
@@ -11,22 +31,55 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       monitorKeypair: this.dialectConnection.getKeypair(),
       dialectProgram: this.dialectConnection.getProgram(),
     })
-    .subscriberEvents()
-    .transform<SubscriberState, SubscriberState>({
-      keys: ['state'],
-      pipelines: [Pipelines.notifyNewSubscribers()],
-    })
-    .notify()
-    .dialectThread(({ value }) => ({
-      message: `Say hello to the future of web3 messaging.`,
-    }))
-    .and()
-    .dispatch('unicast')
-    .build();
+      .defineDataSource<HashSet>()
+      .poll(
+        async (subscribers) => this.getFeatureSet(subscribers),
+        Duration.fromObject({ seconds: 10 }),
+      )
+      .transform<FeatureRelease[], FeatureRelease[]>({
+        keys: ['hashes'],
+        pipelines: [
+          Pipelines.added((e1, e2) => e1.featureHash === e2.featureHash),
+        ],
+      })
+      .notify()
+      .dialectThread(
+        (data) => {
+          console.log(data.context.subscribers[0].toBase58());
+          var updateSuffix = data.value.length > 1 ? 's' : '';
+          return {
+            message: `New solana update${updateSuffix} available: ${data.value
+              .map((e) => e.description)
+              .join(', ')}`,
+          };
+        },
+        {
+          dispatch: 'multicast',
+          to: ({ origin }) => {
+            return origin.subscribers;
+          },
+        },
+      )
+      .and()
+      .build();
     monitor.start();
   }
 
   async onModuleDestroy() {
     await Monitors.shutdown();
+  }
+
+  private async getFeatureSet(
+    subscribers: ResourceId[],
+  ): Promise<SourceData<HashSet>[]> {
+    const set = await fetchFeatureSet();
+    const sourceData: SourceData<HashSet> = {
+      groupingKey: pubKey.toBase58(),
+      data: {
+        subscribers: subscribers,
+        hashes: set,
+      },
+    };
+    return [sourceData];
   }
 }
