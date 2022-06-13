@@ -4,8 +4,8 @@ metadata:
   annotations:
     deployment.kubernetes.io/revision: "16"
   labels:
-    app: monitoring-service
-  name: monitoring-service
+    app: solana-monitoring-service-devnet
+  name: solana-monitoring-service-devnet
   namespace: default
   resourceVersion: "65918483"
 spec:
@@ -14,7 +14,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: monitoring-service
+      app: solana-monitoring-service-devnet
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -24,28 +24,27 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: monitoring-service
+        app: solana-monitoring-service-devnet
     spec:
       containers:
       - env:
         - name: NETWORK_NAME
-          valueFrom:
-            secretKeyRef:
-              key: NETWORK_NAME
-              name: env-vars
+          value: "devnet"
+        - name: TEST
+          value: "true"
         - name: RPC_URL
           valueFrom:
             secretKeyRef:
-              key: RPC_URL
+              key: DEVNET_RPC_URL
               name: env-vars
         - name: PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              key: DIALECT_PRIVATE_KEY
+              key: SOLANA_MESSAGING_PRIVATE_KEY_DEVNET
               name: env-vars
-        image: dialectlab/monitoring-service:0.0.2
+        image: dialectlab/solana-monitoring-service:0.1.0
         imagePullPolicy: Always
-        name: monitoring-service
+        name: solana-monitoring-service-devnet
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
