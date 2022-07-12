@@ -30,6 +30,7 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
     const monitor = Monitors.builder({
       monitorKeypair: this.dialectConnection.getKeypair(),
       dialectProgram: this.dialectConnection.getProgram(),
+      web2SubscriberRepositoryUrl: process.env.WEB2_SUBSCRIBER_SERVICE_BASE_URL,
       sinks: {
         sms: {
           twilioUsername: process.env.TWILIO_ACCOUNT_SID!,

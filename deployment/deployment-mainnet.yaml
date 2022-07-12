@@ -4,8 +4,8 @@ metadata:
   annotations:
     deployment.kubernetes.io/revision: "16"
   labels:
-    app: solana-monitoring-service-devnet
-  name: solana-monitoring-service-devnet
+    app: solana-monitoring-service-mainnet
+  name: solana-monitoring-service-mainnet
   namespace: default
   resourceVersion: "65918483"
 spec:
@@ -14,7 +14,7 @@ spec:
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: solana-monitoring-service-devnet
+      app: solana-monitoring-service-mainnet
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -24,21 +24,21 @@ spec:
     metadata:
       creationTimestamp: null
       labels:
-        app: solana-monitoring-service-devnet
+        app: solana-monitoring-service-mainnet
     spec:
       containers:
       - env:
         - name: NETWORK_NAME
-          value: "devnet"
+          value: "mainnet"
         - name: RPC_URL
           valueFrom:
             secretKeyRef:
-              key: DEVNET_RPC_URL
+              key: MAINNET_RPC_URL
               name: env-vars
         - name: PRIVATE_KEY
           valueFrom:
             secretKeyRef:
-              key: SOLANA_MESSAGING_PRIVATE_KEY_DEVNET
+              key: SOLANA_MESSAGING_PRIVATE_KEY_MAINNET
               name: env-vars
         - name: TWILIO_ACCOUNT_SID
           valueFrom:
@@ -73,7 +73,7 @@ spec:
               name: env-vars
         image: dialectlab/solana-monitoring-service:0.1.0
         imagePullPolicy: Always
-        name: solana-monitoring-service-devnet
+        name: solana-monitoring-service-mainnet
         resources: {}
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
