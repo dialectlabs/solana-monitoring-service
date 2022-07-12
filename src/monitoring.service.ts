@@ -5,14 +5,14 @@ import {
   ResourceId,
   SourceData,
 } from '@dialectlabs/monitor';
-import { DialectConnection } from './dialect-connection';
 import { fetchFeatureSet } from './version-service/version-service';
 import { Duration } from 'luxon';
-import { Keypair, PublicKey } from '@solana/web3.js';
+import { PublicKey } from '@solana/web3.js';
 import {
   Dialect,
   NodeDialectWalletAdapter,
   Environment,
+  SolanaNetwork,
 } from '@dialectlabs/sdk';
 
 const pubKey = new PublicKey('CRpSadzckbDKKaRcUPeGrQmXA2M2oNSGZbTYvyLNs4vA');
@@ -33,18 +33,22 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
   constructor() {
     this.sdk = Dialect.sdk({
       environment: process.env.ENVIROMENT! as Environment,
-      wallet: NodeDialectWalletAdapter.create(
-        Keypair.fromSecretKey(
-          new Uint8Array(JSON.parse(process.env.PRIVATE_KEY as string)),
-        ),
-      ),
+      solana: {
+        rpcUrl: process.env.RPC_URL!,
+        network: process.env.NETWORK_NAME! as SolanaNetwork,
+      },
+      wallet: NodeDialectWalletAdapter.create(),
     });
   }
 
+  async onModuleDestroy() {
+    await Monitors.shutdown();
+  }
+
   onModuleInit() {
-    const monitor = Monitors.builder(
+    const monitor = Monitors.builder({
       sdk: this.sdk,
-      subscribersCacheTTL: Duration.fromObject({ seconds: 5 }),
+      subscribersCacheTTL: Duration.fromObject({ minute: 5 }),
       sinks: {
         sms: {
           twilioUsername: process.env.TWILIO_ACCOUNT_SID!,
@@ -75,10 +79,6 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       .notify()
       .dialectThread(
         (data) => {
-          const publicKey = data.context.subscribers[0];
-          if (publicKey) {
-            console.log(publicKey.toBase58());
-          }
           const updateSuffix = data.value.length > 1 ? 's' : '';
           return {
             message: `⚠️ New solana update${updateSuffix} available: ${data.value
@@ -133,10 +133,6 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       .and()
       .build();
     monitor.start();
-  }
-
-  async onModuleDestroy() {
-    await Monitors.shutdown();
   }
 
   private async getFeatureSet(

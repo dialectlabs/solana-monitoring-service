@@ -361,12 +361,13 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dialectlabs/monitor@=2.0.6":
-  version "2.0.6"
-  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-2.0.6.tgz#e04a3ad5f6f1c9adff66d67094529f1b15aedd96"
-  integrity sha512-A80kgJMx5V6sjFhqGf6QWYzNQWHkQ8XKlQHjtuvVv2kMDpHHOtID8WrySfr/eu+gdcdItgtS7jdVfibEi8VFDQ==
+"@dialectlabs/monitor@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.npmjs.org/@dialectlabs/monitor/-/monitor-3.1.0.tgz#bcad598e08ae3179aac7c6c760aaf4591702c033"
+  integrity sha512-BfZJ2Tu5v7xqgFVMFcmtntEV4ptxe0uRfKritqXpOjdrhWxjr77EIYOy4M1fGoo+FXS9yYjon/1kAUV1qysDEw==
   dependencies:
-    "@dialectlabs/web3" "^0.2.0"
+    "@dialectlabs/sdk" "^0.2.0"
+    "@dialectlabs/web3" "^0.3.2"
     "@project-serum/anchor" "0.23.0"
     "@sendgrid/mail" "^7.6.2"
     "@solana/web3.js" "^1.27.0"
@@ -376,10 +377,40 @@
     telegraf "^4.7.0"
     twilio "^3.76.1"
 
+"@dialectlabs/sdk@^0.2.0":
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/@dialectlabs/sdk/-/sdk-0.2.0.tgz#1facfb87b784d7252010d0382d517c2ebd6213be"
+  integrity sha512-/OLj8QARDdqzaBnDTVtm5n8tAWowyEp+2jFrkGu4YbaGF1Jl1p7rcE+OIHUIj9XAW5omlrxTi7pLu+X/Ho3IPw==
+  dependencies:
+    "@dialectlabs/web3" "^0.3.2"
+    "@project-serum/anchor" "0.23.0"
+    "@solana/wallet-adapter-base" "^0.9.5"
+    "@solana/web3.js" "^1.22.0"
+    "@stablelib/base64" "^1.0.1"
+    axios "^0.27.2"
+    ed2curve "^0.3.0"
+    luxon "^2.4.0"
+    nanoid "^3.3.4"
+    tweetnacl "^1.0.3"
+
 "@dialectlabs/web3@^0.2.0":
   version "0.2.0"
   resolved "https://registry.yarnpkg.com/@dialectlabs/web3/-/web3-0.2.0.tgz#8ea5f9a63e1ef37f8c8611a17cbcb3ea7089c338"
   integrity sha512-NgRV7s7y5brWDZCIcReFpIZRDoygNL13hHwuXq2U30xK1EY1HSr1S+oJMjHYqAAwt0jDraRetoq2ZyJm4xGAOg==
+  dependencies:
+    "@project-serum/anchor" "0.23.0"
+    "@solana/spl-token" "^0.1.8"
+    "@solana/web3.js" "^1.22.0"
+    bytebuffer "^5.0.1"
+    copy-to-clipboard "^3.3.1"
+    ed2curve "0.3.0"
+    js-sha256 "^0.9.0"
+    tweetnacl "1.0.3"
+
+"@dialectlabs/web3@^0.3.2":
+  version "0.3.2"
+  resolved "https://registry.npmjs.org/@dialectlabs/web3/-/web3-0.3.2.tgz#465409691053cfe98054e1113b47285993ca2ccf"
+  integrity sha512-pBay/M6aaMNyHvZgwjDZsta+aqTrmhJ0b+8qeVqkOzCrAgO/H5kCcz2tAoRypCnWi9U0BJaguwr4dHP8jFperA==
   dependencies:
     "@project-serum/anchor" "0.23.0"
     "@solana/spl-token" "^0.1.8"
@@ -876,6 +907,13 @@
     buffer-layout "^1.2.0"
     dotenv "10.0.0"
 
+"@solana/wallet-adapter-base@^0.9.5":
+  version "0.9.8"
+  resolved "https://registry.npmjs.org/@solana/wallet-adapter-base/-/wallet-adapter-base-0.9.8.tgz#7469d878d481a0004c29276f3f4d7fa09e3e7293"
+  integrity sha512-SYbSGQuWih2N5zOtLO21cbEFt8G4PFWMhE/9qlAXjsXRjdGz+pU6NkNMzspvdAizCLUPuB9biKFjX82W0SZm3w==
+  dependencies:
+    eventemitter3 "^4.0.0"
+
 "@solana/web3.js@^1.21.0", "@solana/web3.js@^1.22.0", "@solana/web3.js@^1.27.0", "@solana/web3.js@^1.36.0":
   version "1.47.3"
   resolved "https://registry.yarnpkg.com/@solana/web3.js/-/web3.js-1.47.3.tgz#ec13f2cf4f9f54cc4fbd26d20be1e026c6e2279c"
@@ -897,6 +935,11 @@
     secp256k1 "^4.0.2"
     superstruct "^0.14.2"
     tweetnacl "^1.0.0"
+
+"@stablelib/base64@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.npmjs.org/@stablelib/base64/-/base64-1.0.1.tgz#bdfc1c6d3a62d7a3b7bbc65b6cce1bb4561641be"
+  integrity sha512-1bnPQqSxSuc3Ii6MhBysoWCg58j97aUjuCSZrGSmDxNqtytIi0k8utUenAwTZN4V5mXXYGsVUI9zeBqy+jBOSQ==
 
 "@tootallnate/once@1":
   version "1.1.2"
@@ -2386,7 +2429,7 @@ ecdsa-sig-formatter@1.0.11:
   dependencies:
     safe-buffer "^5.0.1"
 
-ed2curve@0.3.0:
+ed2curve@0.3.0, ed2curve@^0.3.0:
   version "0.3.0"
   resolved "https://registry.yarnpkg.com/ed2curve/-/ed2curve-0.3.0.tgz#322b575152a45305429d546b071823a93129a05d"
   integrity sha512-8w2fmmq3hv9rCrcI7g9hms2pMunQr1JINfcjwR9tAyZqhtyaMN991lF/ZfHfr5tzZQ8c7y7aBgZbjfbd0fjFwQ==
@@ -2646,7 +2689,7 @@ event-target-shim@^5.0.0:
   resolved "https://registry.yarnpkg.com/event-target-shim/-/event-target-shim-5.0.1.tgz#5d4d3ebdf9583d63a5333ce2deb7480ab2b05789"
   integrity sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==
 
-eventemitter3@^4.0.7:
+eventemitter3@^4.0.0, eventemitter3@^4.0.7:
   version "4.0.7"
   resolved "https://registry.yarnpkg.com/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
@@ -4136,7 +4179,7 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-luxon@^2.3.0:
+luxon@^2.3.0, luxon@^2.4.0:
   version "2.5.0"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-2.5.0.tgz#098090f67d690b247e83c090267a60b1aa8ea96c"
   integrity sha512-IDkEPB80Rb6gCAU+FEib0t4FeJ4uVOuX1CQ9GsvU3O+JAGIgu0J7sf1OarXKaKDygTZIoJyU6YdZzTFRu+YR0A==
@@ -4345,6 +4388,11 @@ nanoid@3.3.3:
   version "3.3.3"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.3.tgz#fd8e8b7aa761fe807dba2d1b98fb7241bb724a25"
   integrity sha512-p1sjXuopFs0xg+fPASzQ28agW1oHD7xDsd9Xkf3T15H3c/cifrFHVwrh74PdoklAPi+i7MdRsE47vm2r6JoB+w==
+
+nanoid@^3.3.4:
+  version "3.3.4"
+  resolved "https://registry.npmjs.org/nanoid/-/nanoid-3.3.4.tgz#730b67e3cd09e2deacf03c027c81c9d9dbc5e8ab"
+  integrity sha512-MqBkQh/OHTS2egovRtLk45wEyNXwF+cokD+1YPf9u5VfJiRdAiRwB2froX5Co9Rh20xs4siNPm8naNotSD6RBw==
 
 natural-compare@^1.4.0:
   version "1.4.0"
@@ -5518,7 +5566,7 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-tweetnacl@1.0.3, tweetnacl@1.x.x, tweetnacl@^1.0.0:
+tweetnacl@1.0.3, tweetnacl@1.x.x, tweetnacl@^1.0.0, tweetnacl@^1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/tweetnacl/-/tweetnacl-1.0.3.tgz#ac0af71680458d8a6378d0d0d050ab1407d35596"
   integrity sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==

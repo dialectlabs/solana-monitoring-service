@@ -5,12 +5,6 @@ import { DialectConnection } from './dialect-connection';
 @Module({
   imports: [],
   controllers: [],
-  providers: [
-    {
-      provide: DialectConnection,
-      useValue: DialectConnection.initialize(),
-    },
-    MonitoringService,
-  ],
+  providers: [MonitoringService],
 })
 export class MonitoringServiceModule {}
