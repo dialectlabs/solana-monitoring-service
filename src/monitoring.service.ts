@@ -8,7 +8,12 @@ import {
 import { DialectConnection } from './dialect-connection';
 import { fetchFeatureSet } from './version-service/version-service';
 import { Duration } from 'luxon';
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
+import {
+  Dialect,
+  NodeDialectWalletAdapter,
+  Environment,
+} from '@dialectlabs/sdk';
 
 const pubKey = new PublicKey('CRpSadzckbDKKaRcUPeGrQmXA2M2oNSGZbTYvyLNs4vA');
 
@@ -24,12 +29,22 @@ export interface FeatureRelease {
 
 @Injectable()
 export class MonitoringService implements OnModuleInit, OnModuleDestroy {
-  constructor(private readonly dialectConnection: DialectConnection) {}
+  private sdk;
+  constructor() {
+    this.sdk = Dialect.sdk({
+      environment: process.env.ENVIROMENT! as Environment,
+      wallet: NodeDialectWalletAdapter.create(
+        Keypair.fromSecretKey(
+          new Uint8Array(JSON.parse(process.env.PRIVATE_KEY as string)),
+        ),
+      ),
+    });
+  }
 
   onModuleInit() {
     const monitor = Monitors.builder({
-      monitorKeypair: this.dialectConnection.getKeypair(),
-      dialectProgram: this.dialectConnection.getProgram(),
+      sdk: this.sdk,
+      subscribersCacheTTL: Duration.fromObject({ seconds: 5 }),
       sinks: {
         sms: {
           twilioUsername: process.env.TWILIO_ACCOUNT_SID!,
@@ -60,7 +75,6 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       .notify()
       .dialectThread(
         (data) => {
-          console.log(data.context.subscribers[0].toBase58());
           var updateSuffix = data.value.length > 1 ? 's' : '';
           return {
             message: `⚠️ New solana update${updateSuffix} available: ${data.value
