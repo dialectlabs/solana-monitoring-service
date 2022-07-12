@@ -2,6 +2,8 @@ import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import { Idl, Program, Provider } from '@project-serum/anchor';
 import { idl, programs, Wallet_ } from '@dialectlabs/web3';
 
+export const RPC_URL = process.env.RPC_URL || 'http://localhost:8899';
+
 export abstract class DialectConnection {
   abstract getKeypair(): Keypair;
 

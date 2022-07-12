@@ -42,7 +42,7 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
   }
 
   onModuleInit() {
-    const monitor = Monitors.builder({
+    const monitor = Monitors.builder(
       sdk: this.sdk,
       subscribersCacheTTL: Duration.fromObject({ seconds: 5 }),
       sinks: {
@@ -75,7 +75,11 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       .notify()
       .dialectThread(
         (data) => {
-          var updateSuffix = data.value.length > 1 ? 's' : '';
+          const publicKey = data.context.subscribers[0];
+          if (publicKey) {
+            console.log(publicKey.toBase58());
+          }
+          const updateSuffix = data.value.length > 1 ? 's' : '';
           return {
             message: `⚠️ New solana update${updateSuffix} available: ${data.value
               .map((e) => e.description)
