@@ -29,9 +29,11 @@ spec:
       containers:
         - env:
             - name: ENVIROMENT
-              value: 'development'
+              value: 'production'
+            - name: TEST
+              value: 'true'
             - name: NETWORK_NAME
-              value: 'devnet'
+              value: 'mainnet-beta'
             - name: RPC_URL
               valueFrom:
                 secretKeyRef:
