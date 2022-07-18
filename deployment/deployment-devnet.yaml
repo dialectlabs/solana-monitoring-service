@@ -30,8 +30,6 @@ spec:
         - env:
             - name: ENVIROMENT
               value: 'production'
-            - name: TEST
-              value: 'true'
             - name: NETWORK_NAME
               value: 'mainnet-beta'
             - name: RPC_URL
