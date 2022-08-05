@@ -4,7 +4,7 @@ export function pruneOutput(output: string): string[] {
   const columnDelimiterRegExp = /.+\|.+\|.+/gm;
   return [...output.matchAll(columnDelimiterRegExp)]
     .filter((e) => e.length == 1)
-    .map((e) => e[0].trim());
+    .map((e) => e[0]!.trim());
 }
 
 export function pruneActiveOutput(content: string): string[] {
@@ -20,8 +20,8 @@ export function parseFeatureSetHashFromActiveLine(
     return undefined;
   }
   return {
-    featureHash: columns[0].trim(),
-    description: columns[2].trim(),
+    featureHash: columns[0]!.trim(),
+    description: columns[2]!.trim(),
   };
 }
 

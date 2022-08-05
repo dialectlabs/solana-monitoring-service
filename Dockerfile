@@ -20,10 +20,10 @@ WORKDIR /app
 RUN npm i -g rimraf
 
 COPY package.json yarn.lock ./
-RUN npm install
+RUN yarn
 
 COPY . ./
-RUN npm run build
+RUN yarn build
 
 EXPOSE 8080
 CMD [  "node", "dist/main.js" ]
