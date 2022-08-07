@@ -40,17 +40,16 @@ jobs:
         run: |
           curl -L https://github.com/minamijoyo/hcledit/releases/download/v0.2.5/hcledit_0.2.5_linux_amd64.tar.gz | tar -xz
           chmod +x ./hcledit
-
       - name: Create version file
         id: create-version-file
         env:
           ENVIRONMENT_DIR: "terraform-plans/environments/${{ inputs.environment }}"
-          TF_VARS_FILE: "terraform-plans/environments/${{ inputs.environment }}/terraform.tfvars"
+          SERVICE_RESOURCES_FILE: "terraform-plans/environments/${{ inputs.environment }}/svc-${{ inputs.service_name }}.tf"
         run: |
           mkdir -p ${{ env.ENVIRONMENT_DIR }}
-          cat ${{ env.DEPLOYMENT_SCRIPTS_REPO }}/${{ env.TF_VARS_FILE }} |\
-          ./hcledit attribute set svc_${{ steps.service-name.outputs.service_name }}_image_version '"${{ inputs.service_image_tag }}"' \
-          > ${{ env.TF_VARS_FILE }}
+          cat ${{ env.DEPLOYMENT_SCRIPTS_REPO }}/${{ env.SERVICE_RESOURCES_FILE }} |\
+          ./hcledit attribute set locals.svc_${{ steps.service-name.outputs.service_name }}_image_version '"${{ inputs.service_image_tag }}"' \
+          > ${{ env.SERVICE_RESOURCES_FILE }}
       - name: Create pull request
         uses: paygoc6/action-pull-request-another-repo@v1.0.1
         env:

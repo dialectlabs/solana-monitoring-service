@@ -20,11 +20,7 @@ jobs:
       - name: Install deps
         run: yarn
       - name: Build
-        run: yarn prisma generate && yarn build
-      - name: Lint code
-        run: yarn lint
-      - name: Run unit tests
-        run: yarn test --passWithNoTests
+        run: yarn build
 
   docker-image:
     needs:
