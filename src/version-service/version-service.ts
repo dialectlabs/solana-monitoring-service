@@ -1,11 +1,10 @@
 import { RPC_URL } from '../dialect-connection';
 import { FeatureRelease } from '../monitoring.service';
 import { parseActiveHashes } from '../utils/parsing-utils';
+import { exec as process_exec } from 'child_process';
+import { promisify } from 'util';
 
-import util from 'util';
-import childProcess from 'child_process';
-
-const exec = util.promisify(childProcess.exec);
+const exec = promisify(process_exec);
 
 export async function fetchFeatureSet(): Promise<FeatureRelease[]> {
   const { stdout } = await exec(`solana --url ${RPC_URL} feature status`);
