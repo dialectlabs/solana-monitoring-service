@@ -9,15 +9,15 @@ ENV PATH="/root/.local/share/solana/install/releases/1.8.16/solana-release/bin:$
 
 RUN solana --version
 
-RUN apt update
-RUN apt install -y nodejs npm
+RUN curl -sL https://deb.nodesource.com/setup_16.x | bash -
+RUN apt install -y nodejs
 
 RUN node --version
 RUN npm --version
 
 WORKDIR /app
 
-RUN npm i -g rimraf
+RUN npm i -g rimraf yarn
 
 COPY package.json yarn.lock ./
 RUN yarn
