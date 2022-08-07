@@ -10,8 +10,8 @@ import { Duration } from 'luxon';
 import { PublicKey } from '@solana/web3.js';
 import {
   Dialect,
-  NodeDialectWalletAdapter,
   Environment,
+  NodeDialectWalletAdapter,
   SolanaNetwork,
 } from '@dialectlabs/sdk';
 
@@ -23,13 +23,14 @@ export interface HashSet {
 }
 
 export interface FeatureRelease {
-  featureHash: String;
-  description: String;
+  featureHash: string;
+  description: string;
 }
 
 @Injectable()
 export class MonitoringService implements OnModuleInit, OnModuleDestroy {
   private sdk;
+
   constructor() {
     this.sdk = Dialect.sdk({
       environment: process.env.ENVIROMENT! as Environment,
@@ -95,8 +96,8 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       )
       .telegram(
         (data) => {
-          var updateSuffix = data.value.length > 1 ? 's' : '';
-          const message: string = `⚠️ New solana update${updateSuffix} available: ${data.value
+          const updateSuffix = data.value.length > 1 ? 's' : '';
+          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
             .map((e) => e.description)
             .join(', ')}`;
           return {
@@ -107,8 +108,8 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       )
       .sms(
         (data) => {
-          var updateSuffix = data.value.length > 1 ? 's' : '';
-          const message: string = `⚠️ New solana update${updateSuffix} available: ${data.value
+          const updateSuffix = data.value.length > 1 ? 's' : '';
+          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
             .map((e) => e.description)
             .join(', ')}`;
           return {
@@ -119,8 +120,8 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       )
       .email(
         (data) => {
-          var updateSuffix = data.value.length > 1 ? 's' : '';
-          const message: string = `⚠️ New solana update${updateSuffix} available: ${data.value
+          const updateSuffix = data.value.length > 1 ? 's' : '';
+          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
             .map((e) => e.description)
             .join(', ')}`;
           return {

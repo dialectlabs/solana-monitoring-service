@@ -1,9 +1,9 @@
-import { fetchCurrentVersion } from "./version-service";
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+import { fetchFeatureSet } from './version-service';
+jest.setTimeout(10000000);
 
 describe('fetch tests', function () {
-    it('fetch success', async function () {
-        const version = await fetchCurrentVersion();
-    });
+  it('fetch success', async function () {
+    const version = await fetchFeatureSet();
+    console.log(version);
+  });
 });

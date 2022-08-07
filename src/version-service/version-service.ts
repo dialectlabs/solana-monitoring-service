@@ -1,12 +1,13 @@
-import {FeatureRelease} from 'src/monitoring.service';
-import {parseActiveHashes} from 'src/utils/parsing-utils';
-import {RPC_URL} from "../dialect-connection";
+import { RPC_URL } from '../dialect-connection';
+import { FeatureRelease } from '../monitoring.service';
+import { parseActiveHashes } from '../utils/parsing-utils';
+import { exec as process_exec } from 'child_process';
+import { promisify } from 'util';
 
-const util = require('util');
-const exec = util.promisify(require('child_process').exec);
+const exec = promisify(process_exec);
 
 export async function fetchFeatureSet(): Promise<FeatureRelease[]> {
-  const {stdout} = await exec(`solana --url ${RPC_URL} feature status`);
+  const { stdout } = await exec(`solana --url ${RPC_URL} feature status`);
   if (process.env.TEST) {
     const hashes = parseActiveHashes(stdout);
     const spliced = hashes.splice(
