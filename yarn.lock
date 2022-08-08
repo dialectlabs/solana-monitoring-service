@@ -457,10 +457,10 @@
   dependencies:
     "@jridgewell/trace-mapping" "0.3.9"
 
-"@dialectlabs/monitor@^3.3.1":
-  version "3.3.1"
-  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-3.3.1.tgz#88799d689bcf6d5a884736619243e8dcc060e50d"
-  integrity sha512-TYzptQKtOef7aQJtJp02toEXaee/JOt/+hjJQGWd5CvyaRj/Cj+wzTpdUNe5AqD2eBvV1xawdp32Pb0fdFzRQQ==
+"@dialectlabs/monitor@^3.3.2":
+  version "3.3.2"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-3.3.2.tgz#c472e25a44165286ec5797b0ee3e2c4480373c50"
+  integrity sha512-uLaY5ybjgRG6Kecx05mMjxGlRerfPZM+6h/E7rlt+Kzp0XTufi4J7aw4EwPiQb0eNNBnQpJBja96qLoj2UDcPQ==
   dependencies:
     "@dialectlabs/sdk" "^0.5.1"
     "@dialectlabs/web3" "^0.3.2"

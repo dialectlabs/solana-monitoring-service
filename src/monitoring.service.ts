@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   Monitors,
   Pipelines,
@@ -8,12 +8,7 @@ import {
 import { fetchFeatureSet } from './version-service/version-service';
 import { Duration } from 'luxon';
 import { PublicKey } from '@solana/web3.js';
-import {
-  Dialect,
-  Environment,
-  NodeDialectWalletAdapter,
-  SolanaNetwork,
-} from '@dialectlabs/sdk';
+import { DialectSdk } from './dialect-sdk';
 
 const pubKey = new PublicKey('CRpSadzckbDKKaRcUPeGrQmXA2M2oNSGZbTYvyLNs4vA');
 
@@ -28,49 +23,27 @@ export interface FeatureRelease {
 }
 
 @Injectable()
-export class MonitoringService implements OnModuleInit, OnModuleDestroy {
-  private sdk;
+export class MonitoringService implements OnModuleInit {
+  constructor(private readonly sdk: DialectSdk) {}
 
-  constructor() {
-    this.sdk = Dialect.sdk({
-      environment: process.env.ENVIROMENT! as Environment,
-      solana: {
-        rpcUrl: process.env.RPC_URL!,
-        network: process.env.NETWORK_NAME! as SolanaNetwork,
-      },
-      wallet: NodeDialectWalletAdapter.create(),
-    });
-  }
-
-  async onModuleDestroy() {
-    await Monitors.shutdown();
-  }
+  private readonly logger = new Logger(MonitoringService.name);
 
   onModuleInit() {
     const monitor = Monitors.builder({
       sdk: this.sdk,
       subscribersCacheTTL: Duration.fromObject({ minute: 5 }),
-      sinks: {
-        sms: {
-          twilioUsername: process.env.TWILIO_ACCOUNT_SID!,
-          twilioPassword: process.env.TWILIO_AUTH_TOKEN!,
-          senderSmsNumber: process.env.TWILIO_SMS_SENDER!,
-        },
-        telegram: {
-          telegramBotToken: process.env.TELEGRAM_TOKEN!,
-        },
-        email: {
-          apiToken: process.env.SENDGRID_KEY!,
-          senderEmail: process.env.SENDGRID_EMAIL!,
-        },
-      },
     })
       .defineDataSource<HashSet>()
-      .poll(
-        async (subscribers) => this.getFeatureSet(subscribers),
-        // 2 - 3 time per day
-        Duration.fromObject({ seconds: 10 }),
-      )
+      .poll(async (subscribers) => {
+        const featureSet = await this.getFeatureSet(subscribers);
+        const hashes = featureSet.data.hashes;
+        this.logger.log(
+          `Found ${hashes.length} features: [${hashes.map(
+            (it) => it.description,
+          )}]`,
+        );
+        return [featureSet];
+      }, Duration.fromObject({ hours: 3 }))
       .transform<FeatureRelease[], FeatureRelease[]>({
         keys: ['hashes'],
         pipelines: [
@@ -78,58 +51,19 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
         ],
       })
       .notify()
-      .dialectThread(
+      .dialectSdk(
         (data) => {
           const updateSuffix = data.value.length > 1 ? 's' : '';
           return {
-            message: `⚠️ New solana update${updateSuffix} available: ${data.value
+            title: '⚠️ New solana update',
+            message: `Update${updateSuffix} available: ${data.value
               .map((e) => e.description)
               .join(', ')}`,
           };
         },
         {
-          dispatch: 'multicast',
-          to: ({ origin }) => {
-            return origin.subscribers;
-          },
+          dispatch: 'broadcast',
         },
-      )
-      .telegram(
-        (data) => {
-          const updateSuffix = data.value.length > 1 ? 's' : '';
-          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
-            .map((e) => e.description)
-            .join(', ')}`;
-          return {
-            body: message,
-          };
-        },
-        { dispatch: 'multicast', to: ({ origin }) => origin.subscribers },
-      )
-      .sms(
-        (data) => {
-          const updateSuffix = data.value.length > 1 ? 's' : '';
-          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
-            .map((e) => e.description)
-            .join(', ')}`;
-          return {
-            body: message,
-          };
-        },
-        { dispatch: 'multicast', to: ({ origin }) => origin.subscribers },
-      )
-      .email(
-        (data) => {
-          const updateSuffix = data.value.length > 1 ? 's' : '';
-          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
-            .map((e) => e.description)
-            .join(', ')}`;
-          return {
-            subject: '⚠️ New solana update',
-            text: message,
-          };
-        },
-        { dispatch: 'multicast', to: ({ origin }) => origin.subscribers },
       )
       .and()
       .build();
@@ -138,10 +72,9 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
 
   private async getFeatureSet(
     subscribers: ResourceId[],
-  ): Promise<SourceData<HashSet>[]> {
+  ): Promise<SourceData<HashSet>> {
     const set = await fetchFeatureSet();
-    //console.log(set);
-    const sourceData: SourceData<HashSet> = {
+    return {
       groupingKey: pubKey.toBase58(),
       data: {
         subscribers: subscribers,
@@ -150,6 +83,5 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
           : set,
       },
     };
-    return [sourceData];
   }
 }

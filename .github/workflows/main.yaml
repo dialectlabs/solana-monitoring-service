@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - '*'
+      - '**'
     tags:
       - '*'
 
@@ -62,7 +62,7 @@ jobs:
       image_tag: ${{ steps.get-image-tag.outputs.image_tag }}
 
   cd_devevelopment:
-    if: ${{ contains(github.ref, 'heads') }}
+    if: ${{ contains(github.ref, 'heads/main') }}
     needs:
       - docker-image
     uses: ./.github/workflows/cd.yaml
