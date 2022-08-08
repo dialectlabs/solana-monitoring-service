@@ -1,4 +1,4 @@
-import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import {
   Monitors,
   Pipelines,
@@ -8,12 +8,7 @@ import {
 import { fetchFeatureSet } from './version-service/version-service';
 import { Duration } from 'luxon';
 import { PublicKey } from '@solana/web3.js';
-import {
-  Dialect,
-  Environment,
-  NodeDialectWalletAdapter,
-  SolanaNetwork,
-} from '@dialectlabs/sdk';
+import { DialectSdk } from './dialect-sdk';
 
 const pubKey = new PublicKey('CRpSadzckbDKKaRcUPeGrQmXA2M2oNSGZbTYvyLNs4vA');
 
@@ -28,23 +23,10 @@ export interface FeatureRelease {
 }
 
 @Injectable()
-export class MonitoringService implements OnModuleInit, OnModuleDestroy {
-  private sdk;
+export class MonitoringService implements OnModuleInit {
+  constructor(private readonly sdk: DialectSdk) {}
 
-  constructor() {
-    this.sdk = Dialect.sdk({
-      environment: process.env.ENVIROMENT! as Environment,
-      solana: {
-        rpcUrl: process.env.RPC_URL!,
-        network: process.env.NETWORK_NAME! as SolanaNetwork,
-      },
-      wallet: NodeDialectWalletAdapter.create(),
-    });
-  }
-
-  async onModuleDestroy() {
-    await Monitors.shutdown();
-  }
+  private readonly logger = new Logger(MonitoringService.name);
 
   onModuleInit() {
     const monitor = Monitors.builder({
@@ -66,11 +48,16 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       },
     })
       .defineDataSource<HashSet>()
-      .poll(
-        async (subscribers) => this.getFeatureSet(subscribers),
-        // 2 - 3 time per day
-        Duration.fromObject({ seconds: 10 }),
-      )
+      .poll(async (subscribers) => {
+        const featureSet = await this.getFeatureSet(subscribers);
+        const hashes = featureSet.data.hashes;
+        this.logger.log(
+          `Found ${hashes.length} features: [${hashes.map(
+            (it) => it.description,
+          )}]`,
+        );
+        return [featureSet];
+      }, Duration.fromObject({ minutes: 30 }))
       .transform<FeatureRelease[], FeatureRelease[]>({
         keys: ['hashes'],
         pipelines: [
@@ -138,7 +125,7 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
 
   private async getFeatureSet(
     subscribers: ResourceId[],
-  ): Promise<SourceData<HashSet>[]> {
+  ): Promise<SourceData<HashSet>> {
     const set = await fetchFeatureSet();
     //console.log(set);
     const sourceData: SourceData<HashSet> = {
@@ -150,6 +137,6 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
           : set,
       },
     };
-    return [sourceData];
+    return sourceData;
   }
 }
