@@ -11,9 +11,12 @@ import { DialectSdk } from './dialect-sdk';
 import { ConfigModule } from '@nestjs/config';
 import { ScheduleModule } from '@nestjs/schedule';
 import { MonitoringService } from './monitoring.service';
+import { HealthController } from './health.controller';
+import { TerminusModule } from '@nestjs/terminus';
 
 @Module({
   imports: [
+    TerminusModule,
     HttpModule,
     ScheduleModule.forRoot(),
     ConfigModule.forRoot(),
@@ -33,7 +36,7 @@ import { MonitoringService } from './monitoring.service';
       },
     }),
   ],
-  controllers: [],
+  controllers: [HealthController],
   providers: [
     MonitoringService,
     {
