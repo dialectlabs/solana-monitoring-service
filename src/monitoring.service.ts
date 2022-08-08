@@ -32,20 +32,6 @@ export class MonitoringService implements OnModuleInit {
     const monitor = Monitors.builder({
       sdk: this.sdk,
       subscribersCacheTTL: Duration.fromObject({ minute: 5 }),
-      sinks: {
-        sms: {
-          twilioUsername: process.env.TWILIO_ACCOUNT_SID!,
-          twilioPassword: process.env.TWILIO_AUTH_TOKEN!,
-          senderSmsNumber: process.env.TWILIO_SMS_SENDER!,
-        },
-        telegram: {
-          telegramBotToken: process.env.TELEGRAM_TOKEN!,
-        },
-        email: {
-          apiToken: process.env.SENDGRID_KEY!,
-          senderEmail: process.env.SENDGRID_EMAIL!,
-        },
-      },
     })
       .defineDataSource<HashSet>()
       .poll(async (subscribers) => {
@@ -57,7 +43,7 @@ export class MonitoringService implements OnModuleInit {
           )}]`,
         );
         return [featureSet];
-      }, Duration.fromObject({ minutes: 30 }))
+      }, Duration.fromObject({ hours: 3 }))
       .transform<FeatureRelease[], FeatureRelease[]>({
         keys: ['hashes'],
         pipelines: [
@@ -65,58 +51,19 @@ export class MonitoringService implements OnModuleInit {
         ],
       })
       .notify()
-      .dialectThread(
+      .dialectSdk(
         (data) => {
           const updateSuffix = data.value.length > 1 ? 's' : '';
           return {
-            message: `⚠️ New solana update${updateSuffix} available: ${data.value
+            title: '⚠️ New solana update',
+            message: `Update${updateSuffix} available: ${data.value
               .map((e) => e.description)
               .join(', ')}`,
           };
         },
         {
-          dispatch: 'multicast',
-          to: ({ origin }) => {
-            return origin.subscribers;
-          },
+          dispatch: 'broadcast',
         },
-      )
-      .telegram(
-        (data) => {
-          const updateSuffix = data.value.length > 1 ? 's' : '';
-          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
-            .map((e) => e.description)
-            .join(', ')}`;
-          return {
-            body: message,
-          };
-        },
-        { dispatch: 'multicast', to: ({ origin }) => origin.subscribers },
-      )
-      .sms(
-        (data) => {
-          const updateSuffix = data.value.length > 1 ? 's' : '';
-          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
-            .map((e) => e.description)
-            .join(', ')}`;
-          return {
-            body: message,
-          };
-        },
-        { dispatch: 'multicast', to: ({ origin }) => origin.subscribers },
-      )
-      .email(
-        (data) => {
-          const updateSuffix = data.value.length > 1 ? 's' : '';
-          const message = `⚠️ New solana update${updateSuffix} available: ${data.value
-            .map((e) => e.description)
-            .join(', ')}`;
-          return {
-            subject: '⚠️ New solana update',
-            text: message,
-          };
-        },
-        { dispatch: 'multicast', to: ({ origin }) => origin.subscribers },
       )
       .and()
       .build();
@@ -127,8 +74,7 @@ export class MonitoringService implements OnModuleInit {
     subscribers: ResourceId[],
   ): Promise<SourceData<HashSet>> {
     const set = await fetchFeatureSet();
-    //console.log(set);
-    const sourceData: SourceData<HashSet> = {
+    return {
       groupingKey: pubKey.toBase58(),
       data: {
         subscribers: subscribers,
@@ -137,6 +83,5 @@ export class MonitoringService implements OnModuleInit {
           : set,
       },
     };
-    return sourceData;
   }
 }
