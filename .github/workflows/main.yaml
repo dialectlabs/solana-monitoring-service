@@ -23,6 +23,7 @@ jobs:
         run: yarn build
 
   docker-image:
+    if: ${{ !contains(github.ref, 'heads/dependabot') }}
     needs:
       - integration
     name: Docker image
