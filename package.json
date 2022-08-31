@@ -26,6 +26,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/schedule": "^2.1.0",
     "@nestjs/terminus": "^9.1.0",
+    "axios": "^0.27.2",
     "bn.js": "^5.2.1",
     "lodash": "^4.17.21",
     "luxon": "^3.0.1",
