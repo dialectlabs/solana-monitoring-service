@@ -8,8 +8,9 @@ export async function parseFeatureSDKFile(): Promise<FeatureRelease[]> {
     );
 
     if (!req.data && req.data.length === 0) {
-      return [];
+      throw 'No data found in file';
     }
+
     const regx = /\(.*::id\(\),[ ?]".*\)/gm;
     const matches = req.data.match(regx);
 
@@ -24,6 +25,6 @@ export async function parseFeatureSDKFile(): Promise<FeatureRelease[]> {
 
     return finalMap;
   } catch (e) {
-    return [];
+    throw e;
   }
 }
