@@ -3,7 +3,7 @@ import { FeatureRelease } from 'src/monitoring.service';
 
 export async function parseFeatureSDKFile(): Promise<FeatureRelease[]> {
   const req = await axios.get(
-    'https://raw.githubusercontent.com/solana-labs/solana/master/sdk/src/feature_set.rs1',
+    'https://raw.githubusercontent.com/solana-labs/solana/master/sdk/src/feature_set.rs',
   );
 
   if (!req.data && req.data.length === 0) {
