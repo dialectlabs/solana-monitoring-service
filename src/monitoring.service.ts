@@ -5,10 +5,10 @@ import {
   ResourceId,
   SourceData,
 } from '@dialectlabs/monitor';
-import { fetchFeatureSet } from './version-service/version-service';
 import { Duration } from 'luxon';
 import { PublicKey } from '@solana/web3.js';
 import { DialectSdk } from './dialect-sdk';
+import { parseFeatureSDKFile } from './utils/parsing-utils';
 
 const pubKey = new PublicKey('CRpSadzckbDKKaRcUPeGrQmXA2M2oNSGZbTYvyLNs4vA');
 
@@ -73,7 +73,7 @@ export class MonitoringService implements OnModuleInit {
   private async getFeatureSet(
     subscribers: ResourceId[],
   ): Promise<SourceData<HashSet>> {
-    const set = await fetchFeatureSet();
+    const set = await parseFeatureSDKFile();
     return {
       groupingKey: pubKey.toBase58(),
       data: {
